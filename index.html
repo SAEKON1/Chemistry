@@ -1039,11 +1039,20 @@ input,textarea,select{font-family:inherit; color:inherit;}
         </div>
       </div>
 
-      <div class="glass" style="padding:20px;">
-        <h4 style="margin-bottom:14px;">حالة مزوّدي الذكاء الاصطناعي</h4>
-        <div class="key-status-row"><span>Groq API (دردشة سريعة)</span><span><span class="dot ok"></span>متصل</span></div>
-        <div class="key-status-row"><span>Gemini API (نص وصور)</span><span><span class="dot ok"></span><span id="gemini-key-index">المفتاح 1</span> من <span id="gemini-key-total">3</span></span></div>
-        <div class="key-status-row"><span>YouTube Data API</span><span><span class="dot ok"></span>متصل</span></div>
+      <div class="glass" style="padding:20px; margin-bottom:18px; border-top:3px solid var(--primary);">
+        <h4 style="margin-bottom:4px; display:flex; align-items:center; gap:8px;">
+          <span>🔑 مفاتيح الذكاء الاصطناعي (API Keys)</span>
+          <span style="font-size:.75rem; background:var(--primary-soft); color:var(--primary); padding:2px 8px; border-radius:10px;">اختياري</span>
+        </h4>
+        <p style="font-size:.85rem; color:var(--text-dim); margin-bottom:12px; line-height:1.6;">
+          أدخل مفاتيح Gemini الخاصة بك من <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--accent); text-decoration:underline; font-weight:700;">Google AI Studio</a> لتفعيل الذكاء الاصطناعي بالكامل. 
+          المفاتيح تُحفظ محلياً على جهازك فقط (آمنة 🔒). إذا لم تدخل مفاتيح، سيتم استخدام المفاتيح الافتراضية.
+        </p>
+        <div id="api-keys-section" style="margin-bottom:14px;"></div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" id="save-api-keys-btn">💾 حفظ المفاتيح الجديدة</button>
+          <button class="btn btn-ghost" id="reset-api-keys-btn">🔄 العودة للمفاتيح الافتراضية</button>
+        </div>
       </div>
 
       <button class="btn btn-ghost btn-block" style="margin-top:18px; color:var(--danger);" id="delete-account-btn">حذف الحساب</button>
@@ -1580,16 +1589,19 @@ function renderCompanion(animateLevelUp=false){
   const avatarEl = document.getElementById('companion-avatar');
   if(!avatarEl) return;
   avatarEl.textContent = stage.icon;
-  document.getElementById('companion-stage').textContent = `المرحلة ${COMPANION_STAGES.indexOf(stage)+1} — ${stage.name}`;
+  const stageEl = document.getElementById('companion-stage');
+  const barEl = document.getElementById('companion-bar-fill');
+  const nextEl = document.getElementById('companion-next');
+  if(stageEl) stageEl.textContent = `المرحلة ${COMPANION_STAGES.indexOf(stage)+1} — ${stage.name}`;
   const needed = s.level * 100;
   const pct = Math.min(100, (s.xp/needed)*100);
-  document.getElementById('companion-bar-fill').style.width = pct + '%';
-  document.getElementById('companion-next').textContent = nextStage
+  if(barEl) barEl.style.width = pct + '%';
+  if(nextEl) nextEl.textContent = nextStage
     ? `سيتطوّر رفيقك عند المستوى ${nextStage.minLevel} (${nextStage.icon} ${nextStage.name})`
     : `وصل رفيقك لأعلى مرحلة تطوّر! 🎉`;
   if(animateLevelUp){
     avatarEl.classList.remove('leveling-up');
-    void avatarEl.offsetWidth; // إعادة تشغيل الأنيميشن
+    void avatarEl.offsetWidth;
     avatarEl.classList.add('leveling-up');
   }
 }
@@ -1851,24 +1863,33 @@ function renderImagePreviews(){
 
 /* ============================= Top bar XP / Sidebar user ============================= */
 function renderTopXp(){
-  document.getElementById('topbar-xp-text').textContent = `${State.stats.xp} XP`;
-  document.getElementById('sidebar-ulevel').textContent = `المستوى ${State.stats.level}`;
+  const xpEl = document.getElementById('topbar-xp-text');
+  const lvlEl = document.getElementById('sidebar-ulevel');
+  if(xpEl) xpEl.textContent = `${State.stats.xp} XP`;
+  if(lvlEl) lvlEl.textContent = `المستوى ${State.stats.level}`;
 }
 
 function renderSidebarUser(){
   const name = State.user?.name || 'ضيف';
-  document.getElementById('sidebar-uname').textContent = name;
-  document.getElementById('profile-name-display').textContent = name;
-  document.getElementById('profile-email-display').textContent = State.user?.email || 'guest@aistudy.app';
+  const unameEl = document.getElementById('sidebar-uname');
+  const profileNameEl = document.getElementById('profile-name-display');
+  const profileEmailEl = document.getElementById('profile-email-display');
+  const avatarImgEl = document.getElementById('sidebar-avatar-img');
+  const avatarFallbackEl = document.getElementById('sidebar-avatar-fallback');
+  const profileAvatarDisplayEl = document.getElementById('profile-avatar-display');
+  
+  if(unameEl) unameEl.textContent = name;
+  if(profileNameEl) profileNameEl.textContent = name;
+  if(profileEmailEl) profileEmailEl.textContent = State.user?.email || 'guest@aistudy.app';
+  
   const initial = name.trim().charAt(0).toUpperCase() || 'A';
-  const avatarImgs = [document.getElementById('sidebar-avatar-img')];
   if(State.user?.avatar){
-    avatarImgs.forEach(im => { im.src = State.user.avatar; im.classList.remove('hidden'); });
-    document.getElementById('sidebar-avatar-fallback').classList.add('hidden');
-    document.getElementById('profile-avatar-display').innerHTML = `<img src="${State.user.avatar}" alt="">`;
+    if(avatarImgEl){ avatarImgEl.src = State.user.avatar; avatarImgEl.classList.remove('hidden'); }
+    if(avatarFallbackEl) avatarFallbackEl.classList.add('hidden');
+    if(profileAvatarDisplayEl) profileAvatarDisplayEl.innerHTML = `<img src="${State.user.avatar}" alt="">`;
   }else{
-    document.getElementById('sidebar-avatar-fallback').textContent = initial;
-    document.getElementById('profile-avatar-display').textContent = initial;
+    if(avatarFallbackEl) avatarFallbackEl.textContent = initial;
+    if(profileAvatarDisplayEl) profileAvatarDisplayEl.textContent = initial;
   }
   renderTopXp();
 }
@@ -2104,6 +2125,9 @@ let pendingAvatarBase64 = null;
 
 /* ============================= INIT ============================= */
 document.addEventListener('DOMContentLoaded', () => {
+  // حمّل المفاتيح المخصصة إن كانت موجودة
+  CONFIG.GEMINI_API_KEYS = getCustomGeminiKeys();
+  
   applyTheme(State.theme);
   applySkin(State.skin, { silent:true });
   initSplash();
@@ -2241,13 +2265,15 @@ function initAuthHandlers(){
 }
 
 function enterApp(showWelcome, welcomeMsg){
-  document.getElementById('auth-screen').classList.add('hidden');
+  const authScreenEl = document.getElementById('auth-screen');
+  if(authScreenEl) authScreenEl.classList.add('hidden');
   if(showWelcome){
     const overlay = document.getElementById('welcome-overlay');
-    document.getElementById('welcome-text').textContent = welcomeMsg || 'أهلاً بك!';
-    overlay.classList.remove('hidden');
+    const welcomeTextEl = document.getElementById('welcome-text');
+    if(welcomeTextEl) welcomeTextEl.textContent = welcomeMsg || 'أهلاً بك!';
+    if(overlay) overlay.classList.remove('hidden');
     setTimeout(() => {
-      overlay.classList.add('hidden');
+      if(overlay) overlay.classList.add('hidden');
       mountApp();
     }, 1400);
   }else{
@@ -2256,9 +2282,11 @@ function enterApp(showWelcome, welcomeMsg){
 }
 
 function mountApp(){
-  document.getElementById('app').classList.add('active');
+  const appEl = document.getElementById('app');
+  const greetingEl = document.getElementById('home-greeting');
+  if(appEl) appEl.classList.add('active');
   renderSidebarUser();
-  document.getElementById('home-greeting').textContent = `أهلاً بك، ${State.user?.name || 'صديقي'} 👋`;
+  if(greetingEl) greetingEl.textContent = `أهلاً بك، ${State.user?.name || 'صديقي'} 👋`;
   renderRecent();
   renderCompanion();
 }
@@ -2776,12 +2804,130 @@ function initFavoritesTabs(){
   });
 }
 
+/* ============================= API Keys Management ============================= */
+const DEFAULT_GEMINI_KEYS = [
+  'AQ.Ab8RN6KnnVW_Ix2ClWLKGuMZvfXikhWmYdaSgrHCycws1Srz_Q',
+  'AQ.Ab8RN6L6K7OXh_t6RZ26kdhsMa_DunX9y6tuDltrjfVU7Kfq3g',
+  'AQ.Ab8RN6J_6Kn7zQgjoi3jp-1IG7LpJQ7fwLQwH7oEnb5IdokyIw'
+];
+
+// أسماء وأوصاف المفاتيح
+const GEMINI_KEYS_INFO = [
+  { 
+    name: 'Gemini 1 - حل الأسئلة',
+    description: 'يُستخدم لحل الأسئلة والشرح خطوة بخطوة',
+    color: '#6366F1'
+  },
+  { 
+    name: 'Gemini 2 - الدردشة والملفات',
+    description: 'للدردشة الذكية ومعالجة الملفات والصور',
+    color: '#22D3EE'
+  },
+  { 
+    name: 'Gemini 3 - احتياطي',
+    description: 'مفتاح احتياطي إذا انقطع المفتاح الأول أو الثاني',
+    color: '#34D399'
+  },
+];
+
+function getCustomGeminiKeys(){
+  const stored = DB.get('customGeminiKeys', null);
+  return stored && stored.length > 0 ? stored : DEFAULT_GEMINI_KEYS;
+}
+
+function setCustomGeminiKeys(keys){
+  DB.set('customGeminiKeys', keys.filter(k => k.trim().length > 0));
+  CONFIG.GEMINI_API_KEYS = getCustomGeminiKeys();
+  GeminiRotator.idx = 0;
+}
+
+function resetGeminiKeys(){
+  DB.remove('customGeminiKeys');
+  CONFIG.GEMINI_API_KEYS = DEFAULT_GEMINI_KEYS;
+  GeminiRotator.idx = 0;
+  toast('تم استرجاع المفاتيح الافتراضية', 'success');
+}
+
+function renderAPIKeysSection(){
+  const section = document.getElementById('api-keys-section');
+  if(!section) return;
+  const keys = getCustomGeminiKeys();
+  
+  section.innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      ${keys.map((key, i) => `
+        <div class="glass" style="padding:14px; border-right:4px solid ${GEMINI_KEYS_INFO[i]?.color || '#666'}; border-radius:12px;">
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+            <span style="font-weight:700; font-size:.95rem; color:var(--text);">🔑 ${GEMINI_KEYS_INFO[i]?.name || 'مفتاح ' + (i+1)}</span>
+          </div>
+          <p style="color:var(--text-faint); font-size:.8rem; margin-bottom:10px;">${GEMINI_KEYS_INFO[i]?.description || ''}</p>
+          <div class="auth-field" style="margin-bottom:0;">
+            <label style="font-size:.8rem;">أدخل مفتاح API الخاص بك من Google AI Studio</label>
+            <input type="password" class="input gemini-key-input" data-idx="${i}" value="${escapeHtml(key)}" placeholder="AQ.Ab8RN6..." style="font-family:monospace; font-size:.85rem;">
+            <small style="color:var(--text-faint); margin-top:4px; display:flex; align-items:center; gap:4px;">
+              ${key.length > 10 ? '✓ مفتاح موجود (طول: ' + key.length + ' حرف)' : '⚠️ لم تدخل مفتاح بعد'}
+              <button style="background:none; border:none; cursor:pointer; font-size:1rem;" title="عرض/إخفاء المفتاح" data-toggle="${i}">👁️</button>
+            </small>
+          </div>
+        </div>
+      `).join('')}
+      
+      <button class="btn btn-ghost btn-sm" id="add-api-key-btn" style="margin-top:6px;">+ إضافة مفتاح إضافي</button>
+    </div>
+  `;
+
+  // أزرار عرض/إخفاء المفاتيح
+  section.querySelectorAll('[data-toggle]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const idx = btn.dataset.toggle;
+      const input = section.querySelector(`[data-idx="${idx}"]`);
+      if(input) input.type = input.type === 'password' ? 'text' : 'password';
+    });
+  });
+
+  // إضافة مفتاح جديد
+  document.getElementById('add-api-key-btn')?.addEventListener('click', () => {
+    const newKeys = keys.concat('');
+    setCustomGeminiKeys(newKeys);
+    renderAPIKeysSection();
+  });
+}
+
+function initAPIKeysHandlers(){
+  document.getElementById('save-api-keys-btn')?.addEventListener('click', () => {
+    const inputs = document.querySelectorAll('.gemini-key-input');
+    const keys = Array.from(inputs).map(inp => inp.value.trim());
+    
+    // تحقق إن في مفتاح واحد على الأقل
+    const validKeys = keys.filter(k => k.length > 0);
+    if(validKeys.length === 0){ 
+      toast('⚠️ أدخل مفتاح واحد على الأقل من Google AI Studio', 'error'); 
+      return; 
+    }
+    
+    setCustomGeminiKeys(keys);
+    toast(`✓ تم حفظ ${validKeys.length} مفتاح API بنجاح — سيتم استخدامها فوراً`, 'success');
+    renderAPIKeysSection();
+  });
+
+  document.getElementById('reset-api-keys-btn')?.addEventListener('click', () => {
+    if(confirm('هل تريد العودة للمفاتيح الافتراضية؟ سيتم مسح المفاتيح المخصصة.')){
+      resetGeminiKeys();
+      renderAPIKeysSection();
+      initAPIKeysHandlers();
+    }
+  });
+}
+
 /* ============================= Profile ============================= */
 function initProfile(){
   document.getElementById('profile-edit-btn').addEventListener('click', () => {
     openEditProfileModal();
   });
   renderSkinsGrid();
+  renderAPIKeysSection();
+  initAPIKeysHandlers();
 }
 function openEditProfileModal(){
   const root = document.getElementById('modal-root');
@@ -2849,10 +2995,11 @@ function initNotifications(){
   }
 }
 
-/* ============================= Gemini key status display ============================= */
 function renderGeminiKeyStatus(){
-  document.getElementById('gemini-key-index').textContent = `المفتاح ${GeminiRotator.idx + 1}`;
-  document.getElementById('gemini-key-total').textContent = GeminiRotator.totalKeys();
+  const indexEl = document.getElementById('gemini-key-index');
+  const totalEl = document.getElementById('gemini-key-total');
+  if(indexEl) indexEl.textContent = `المفتاح ${GeminiRotator.idx + 1}`;
+  if(totalEl) totalEl.textContent = GeminiRotator.totalKeys();
 }
 
 </script>
