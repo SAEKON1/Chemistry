@@ -851,13 +851,38 @@ input,textarea,select{font-family:inherit; color:inherit;}
     <section class="page" id="page-videos">
       <div class="page-head">
         <h1>فيديوهات تعليمية 🎬</h1>
-        <p>ابحث عن أي شرح فيديو وشغّله داخل الموقع</p>
+        <p>اشترك بقنوات السادس العلمي وشغّل الفيديوهات مباشرة هنا</p>
       </div>
-      <div class="glass" style="padding:16px; margin-bottom:20px; display:flex; gap:10px;">
-        <input type="text" class="input" id="video-search-input" placeholder="مثال: شرح قانون نيوتن الثاني">
-        <button class="btn btn-primary" id="video-search-btn">بحث</button>
+
+      <!-- قائمة القنوات المقترحة -->
+      <div class="glass" style="padding:20px; margin-bottom:20px;">
+        <p style="font-size:.9rem; font-weight:700; margin-bottom:12px; color:var(--text);">📺 قنوات شرح السادس العلمي الموصى بها:</p>
+        <div class="quick-grid" id="channels-grid" style="grid-template-columns:repeat(auto-fill,minmax(120px,1fr));">
+          <!-- يتم ملؤها من الكود -->
+        </div>
       </div>
-      <div id="video-player-zone"></div>
+
+      <!-- شريط البحث والمرشحات -->
+      <div class="glass" style="padding:16px; margin-bottom:20px; display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="text" class="input" id="video-search-input" placeholder="ابحث عن: شرح قانون نيوتن، حل مسألة كيمياء، إلخ" style="flex:1; min-width:200px;">
+        <select class="input" id="video-subject-filter" style="width:auto; min-width:150px;">
+          <option value="">كل المواد</option>
+          <option value="فيزياء">الفيزياء</option>
+          <option value="كيمياء">الكيمياء</option>
+          <option value="أحياء">الأحياء</option>
+          <option value="رياضيات">الرياضيات</option>
+          <option value="عربي">اللغة العربية</option>
+        </select>
+        <button class="btn btn-primary" id="video-search-btn">🔍 بحث</button>
+      </div>
+
+      <!-- منطقة عرض الفيديو الحالي -->
+      <div id="video-player-zone" style="margin-bottom:22px;"></div>
+
+      <!-- قائمة النتائج / الفيديوهات -->
+      <div style="margin-bottom:14px;">
+        <h3 style="font-weight:800; margin-bottom:12px;">نتائج البحث (تشغيل مباشر بدون ترك الموقع)</h3>
+      </div>
       <div class="card-grid" id="video-results-grid"></div>
     </section>
 
@@ -1047,9 +1072,9 @@ const CONFIG = {
   GROQ_API_KEY: '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',
   YOUTUBE_API_KEY: 'AIzaSyD74-mFhTkdcMNPrg944i1gGsuyNH2OvW8',
   GEMINI_API_KEYS: [
-    'AIzaSyCVdyhWElyEhOvQ9S7WMCYmu8t__1tvIuo',
-    'AIzaSyDNJB47xCAHyFAJHYZpZyq6v1tDhSPnn08',
-    'AIzaSyBermR8yFPao5_iTT8g5z1_owzhq_RVOyU'
+    'AQ.Ab8RN6LYETxaCFV1dmkkbB0Jeh2yBR0o8wbjT3t4SQSMF61-ng',
+    'AQ.Ab8RN6KOcaW6LpLoVY3kbs3ylkWH8J_vgo_7Zcx9vKJjCnUEFw',
+    'AQ.Ab8RN6LYETxaCFV1dmkkbB0Jeh2yBR0o8wbjT3t4SQSMF61-ng'
   ],
   GROQ_MODEL: 'openai/gpt-oss-120b',
   GEMINI_MODEL: 'gemini-2.5-flash',
